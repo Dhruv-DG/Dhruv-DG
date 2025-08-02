@@ -4,42 +4,27 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allows manual run from Actions tab
+  workflow_dispatch:  # manual trigger
 
 jobs:
-  generate-snake:
+  generate:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - uses: actions/checkout@v4
 
       - name: Generate snake SVGs
-        uses: ./  # Assumes your action is in the root of your repo
+        uses: platane/github-contribution-grid-snake@v3
         with:
-          github_user_name: platane
+          github_user_name: your-github-username
           outputs: |
             dist/github-contribution-grid-snake.svg
-            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
-            dist/github-contribution-grid-snake-ocean.svg?color_snake=orange&color_dots=#dadcdf94,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
-            dist/github-contribution-grid-snake-grey.svg?color_snake=111&color_dots=#eee,#aaa,#888,#666,#444
+            dist/github-contribution-grid-snake-dark.svg
 
-      - name: Prepare output folder
+      - name: Commit SVGs
         run: |
-          mkdir -p output
-          cp dist/*.svg output/
-
-      - name: Commit and push changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          author_name: github-actions
-          author_email: github-actions@github.com
-          message: "Update GitHub Snake SVGs"
-          add: "output/*"
-          push: true
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add dist/*.svg
+          git commit -m "Update GitHub contribution snake" || echo "No changes to commit"
+          git push
