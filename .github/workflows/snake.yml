@@ -1,12 +1,13 @@
-name: Generate and Commit GitHub Snake SVGs
+name: Update GitHub Snake SVG
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:  # Allows manual run from Actions tab
 
 jobs:
-  build-and-commit-svg:
+  generate-snake:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,8 +21,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Generate snake SVGs
-        id: generate-snake
-        uses: ./  # Assumes action is in root of repo
+        uses: ./  # Assumes your action is in the root of your repo
         with:
           github_user_name: platane
           outputs: |
@@ -29,23 +29,13 @@ jobs:
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
             dist/github-contribution-grid-snake-ocean.svg?color_snake=orange&color_dots=#dadcdf94,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
             dist/github-contribution-grid-snake-grey.svg?color_snake=111&color_dots=#eee,#aaa,#888,#666,#444
-            dist/github-contribution-grid-snake.gif
-            dist/github-contribution-grid-snake-ocean.gif?color_snake=orange&color_dots=#dadcdf94,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
 
-      - name: Ensure SVGs exist
-        run: |
-          ls dist
-          test -f dist/github-contribution-grid-snake.svg
-          test -f dist/github-contribution-grid-snake-dark.svg
-
-      - name: Prepare output directory
+      - name: Prepare output folder
         run: |
           mkdir -p output
           cp dist/*.svg output/
-          # If you want, copy GIFs or others too:
-          # cp dist/*.gif output/
 
-      - name: Commit and push SVGs to main branch
+      - name: Commit and push changes
         uses: EndBug/add-and-commit@v9
         with:
           author_name: github-actions
